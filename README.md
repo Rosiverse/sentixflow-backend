@@ -39,6 +39,23 @@ SentixFlow is a backend system that analyzes user sentiment and recommends media
 - Deploy backend to cloud platform
 
 ---
+## Example Request
+
+POST /analyze
+
+{
+  "text": "I feel happy today"
+}
+
+## Example Response
+
+{
+  "sentiment": "positive",
+  "recommendation": "watch motivational videos"
+}
+
+--- 
+
 
 ## 👩‍💻 Author
 Roshni K  
