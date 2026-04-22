@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MoodFlix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #111; color: #fff; }
+        a { text-decoration: none; color: inherit; }
+
+        /* Navbar */
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; background: #1a1a1a; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        nav h1 { font-family: 'Roboto', sans-serif; font-size: 2em; color: #ff3c38; }
+        nav .nav-links a { margin-left: 20px; font-weight: 500; transition: color 0.3s; }
+        nav .nav-links a:hover { color: #ff7e5f; }
+
+        /* Sections */
+        section { display: none; padding: 100px 50px; text-align: center; min-height: calc(100vh - 80px); }
+        section.active { display: block; }
+
+        /* Welcome Section */
+        #welcome h2 { font-size: 2.5em; margin-bottom: 20px; color: #ff7e5f; }
+        #welcome p { font-size: 1.2em; margin-bottom: 40px; }
+        #welcome button { padding: 15px 40px; font-size: 1.1em; border: none; border-radius: 50px; background: #ff3c38; color: #fff; cursor: pointer; transition: all 0.3s; }
+        #welcome button:hover { background: #ff7e5f; }
+
+        /* Mood Selection */
+        #moodSelection h2 { margin-bottom: 20px; font-size: 2em; color: #ffd700; }
+        .mood-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px; }
+        .mood-buttons button { padding: 15px 30px; font-size: 1em; border-radius: 50px; border: none; cursor: pointer; background: linear-gradient(45deg, #ff3c38, #ff7e5f); color: #fff; transition: all 0.3s; }
+        .mood-buttons button:hover { transform: scale(1.1); }
+
+        /* Recommendations */
+        #recommendationsPage h2 { margin-bottom: 20px; font-size: 2em; color: #ffd700; }
+        #recommendationsPage p { margin-bottom: 20px; font-size: 1.1em; }
+        .movie-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: #1a1a1a; padding: 20px; border-radius: 15px; transition: transform 0.3s, box-shadow 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
+        .card a { color: #ff7e5f; font-weight: 600; font-size: 1.1em; }
+
+        /* Input mood box */
+        #customMood input { padding: 12px 20px; border-radius: 50px; border: none; width: 250px; margin-right: 10px; }
+        #customMood button { padding: 12px 25px; border-radius: 50px; border: none; background: #ff3c38; color: #fff; cursor: pointer; font-weight: 500; }
+        #customMood button:hover { background: #ff7e5f; }
+
+        /* Footer */
+        footer { text-align: center; padding: 20px; background: #1a1a1a; font-size: 0.9em; color: #bbb; }
+
+        @media(max-width:600px){
+            nav { flex-direction: column; }
+            .mood-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <h1>MoodFlix</h1>
+        <div class="nav-links">
+            <a href="#" onclick="showSection('welcome')">Home</a>
+            <a href="#" onclick="showSection('moodSelection')">Mood</a>
+        </div>
+    </nav>
+
+    <!-- Welcome Page -->
+    <section id="welcome" class="active">
+        <h2>Welcome to MoodFlix</h2>
+        <p>Discover movies based on your mood and feel the perfect vibe.</p>
+        <button onclick="showSection('moodSelection')">Get Started</button>
+    </section>
+
+    <!-- Mood Selection Page -->
+    <section id="moodSelection">
+        <h2>How do you feel today?</h2>
+        <div class="mood-buttons">
+            <button onclick="getRecommendations('happy')">Happy</button>
+            <button onclick="getRecommendations('sad')">Sad</button>
+            <button onclick="getRecommendations('romantic')">Romantic</button>
+            <button onclick="getRecommendations('angry')">Angry</button>
+            <button onclick="getRecommendations('scared')">Scared</button>
+            <button onclick="getRecommendations('neutral')">Neutral</button>
+        </div>
+        <div id="customMood" style="margin-top:30px;">
+            <input type="text" id="moodInput" placeholder="Or type your mood...">
+            <button onclick="submitCustomMood()">Submit</button>
+        </div>
+    </section>
+
+    <!-- Recommendations Page -->
+    <section id="recommendationsPage">
+        <h2 id="predictedMood"></h2>
+        <p id="message"></p>
+        <div class="movie-cards" id="recommendations"></div>
+        <button style="margin-top:30px;padding:12px 25px;border-radius:50px;border:none;background:#ff3c38;color:#fff;cursor:pointer;font-weight:500;" onclick="showSection('moodSelection')">Choose Another Mood</button>
+    </section>
+
+    <footer>
+        &copy; 2025 MoodFlix. All rights reserved.
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        function showSection(id){
+            document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        function submitCustomMood(){
+            const mood = document.getElementById("moodInput").value.trim();
+            if(!mood){
+                alert("Please enter a mood.");
+                return;
+            }
+            getRecommendations(mood);
+        }
+
+        async function getRecommendations(moodText){
+            showSection('recommendationsPage');
+            document.getElementById("predictedMood").innerText = "Loading...";
+            document.getElementById("message").innerText = "";
+            document.getElementById("recommendations").innerHTML = "";
+
+            try {
+                const response = await fetch("/recommend", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mood: moodText })
+                });
+                const data = await response.json();
+
+                if(data.error){
+                    document.getElementById("predictedMood").innerText = "";
+                    alert("Error: " + data.error);
+                    showSection('moodSelection');
+                    return;
+                }
+
+                document.getElementById("predictedMood").innerText = "Predicted Mood: " + data.predicted_mood;
+
+                if(data.message){
+                    document.getElementById("message").innerText = data.message;
+                    return;
+                }
+
+                const container = document.getElementById("recommendations");
+                data.recommendations.forEach(item => {
+                    const card = document.createElement("div");
+                    card.className = "card";
+                    card.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a>`;
+                    container.appendChild(card);
+                });
+
+            } catch(err){
+                alert("Something went wrong: " + err);
+                showSection('moodSelection');
+            }
+        }
+    </script>
+
+</body>
+</html>
